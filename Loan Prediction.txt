@@ -1,0 +1,66 @@
+#Loan Prediction using Python and Machine Learning
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#Data Collection
+Data=pd.read_csv("LoanPrediction(ML).csv")
+Data.head(n=5)
+
+#Data Visualization
+sns.countplot(x="Loan_Status",data=Data)
+##Plotting ApplicantIncome VS LoanAmount
+plt.scatter(x=Data['ApplicantIncome'],y=Data['LoanAmount'])
+plt.xlabel('Applicant Income')
+plt.ylabel('Loan Amount')
+plt.title('Applicant Income vs Loan Amount')
+
+#Changing the Text into Int values
+Data['Dependents'].replace(['3+'],[3],inplace=True)
+Data['Loan_Status'].replace(['Y','N'],[1,0],inplace=True)
+Data['Married'].replace(['Yes','No'],[1,0],inplace=True)
+Data['Self_Employed'].replace(['Yes','No'],[1,0],inplace=True)
+Data['Property_Area'].replace(['Urban','Semiurban','Rural'],[3,2,1],inplace=True)
+Data['Education'].replace(['Graduate','Not Graduate'],[1,0],inplace=True)
+
+#Checking Null values with respect to sections
+Data.isnull().sum()
+
+#Handling the Null Values
+Data['Gender'].value_counts()
+Data.Gender=Data.Gender.fillna('Male')
+Data['Married'].value_counts()
+Data.Married=Data.Married.fillna('1')
+Data['Dependents'].value_counts()
+Data.Dependents=Data.Dependents.fillna('0')
+Data['Self_Employed'].value_counts()
+Data.Self_Employed=Data.Self_Employed.fillna('0')
+Data['LoanAmount'].value_counts()
+Data.LoanAmount=Data.LoanAmount.fillna(Data.LoanAmount.mean())
+Data['Loan_Amount_Term'].value_counts()
+Data.Loan_Amount_Term=Data.Loan_Amount_Term.fillna('360')
+Data['Credit_History'].value_counts()
+Data.Credit_History=Data.Credit_History.fillna('1')
+
+##Again Checking if Null Vaues
+Data.isnull().sum().sum()
+
+#Dividing Data into Dependent(y) and Independent Values(x)
+x=Data[['Married','Dependents','Education','Self_Employed','ApplicantIncome','CoapplicantIncome','LoanAmount','Loan_Amount_Term','Credit_History','Property_Area']]
+y=Data['Loan_Status']
+
+#Dividing Independent and Dependent values into Training and Testing Data
+from sklearn.model_selection import train_test_split
+X_Train,X_Test,Y_Train,Y_Test=train_test_split(x,y,test_size=0.25,random_state=0)
+
+#Creating Machine Learning Model
+from sklearn.linear_model import LogisticRegression
+My_mdl=LogisticRegression()
+My_mdl.fit(X_Train,Y_Train)
+Y_Pred=My_mdl.predict(X_Test)
+Y_Pred
+
+#Checking Accuracy
+from sklearn.metrics import accuracy_score
+print('So the model accuracy is ::::',accuracy_score(Y_Test, Y_Pred)*100 )
